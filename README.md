@@ -15,7 +15,7 @@ To stop them, open a new teriminal session and run
 sudo docker-compose down
 ```
 
-# Attacke
+# Attack
 
 > The POC comes from https://www.exploit-db.com/exploits/32745
 
