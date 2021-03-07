@@ -1,38 +1,34 @@
-FROM ubuntu:14.04
+FROM ubuntu:20.04
 
 WORKDIR /root
 
 RUN apt-get update \
     && apt-get -y install \
         build-essential \
-        wget
-
-RUN wget https://www.openssl.org/source/old/1.0.1/openssl-1.0.1f.tar.gz \
+        python3 \
+        wget \
+    && wget https://www.openssl.org/source/old/1.0.1/openssl-1.0.1f.tar.gz \
+    && wget https://archive.apache.org/dist/httpd/httpd-2.2.34.tar.gz \
     && tar xvf openssl-1.0.1f.tar.gz \
     && cd openssl-1.0.1f \
-    && ./config \
+    && ./config shared \
     && make \
-    && make install_sw
-
-RUN wget https://archive.apache.org/dist/httpd/httpd-2.2.34.tar.gz \
+    && make install_sw \
     && tar xvf httpd-2.2.34.tar.gz \
     && cd httpd-2.2.34 \
-    && ./configure \
+    && ./configure --enable-ssl --with-ssl=/usr/local/ssl \
     && make \
-    && make install
+    && make install \
+    && apt-get clean \
+    && rm -rf *
 
-RUN apt-get -y install \
-        libapache2-mod-php5 \
-        php5-cli \
-        php5-gd \
-        php5-dev \
-        php5-json \
-        php5-mysql \
-    && a2enmod rewrite \
-    && a2enmod ssl \
-    && a2enmod cgi \
-    && a2enmod headers
+WORKDIR /usr/local/apache2/
 
-RUN apt-get clean
+COPY httpbin cgi-bin/httpbin
 
-CMD /usr/local/apache2/bin/apachectl -k start && tail -f /usr/local/apache2/logs/access_log
+RUN chmod +x cgi-bin/httpbin \
+    && sed 's/#ServerName www.example.com:80/ServerName www.example.com:80/g' conf/httpd.conf -i \
+    && sed 's/#Include conf\/extra\/httpd-ssl.conf/Include conf\/extra\/httpd-ssl.conf/g' conf/httpd.conf -i \
+    && openssl req -x509 -nodes -days 30 -newkey rsa:2048 -keyout conf/server.key -out conf/server.crt -subj "/CN= www.example.com"
+
+CMD LD_LIBRARY_PATH=/usr/local/ssl/lib bin/apachectl -k start && tail -f logs/access_log

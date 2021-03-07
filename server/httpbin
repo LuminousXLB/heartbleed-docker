@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+
+import cgi
+from sys import stdin
+import cgitb
+import json
+import os
+
+cgitb.enable()
+form = cgi.FieldStorage()
+
+print("Content-type: application/json\r\n")
+print(json.dumps({
+    'environ': dict(os.environ),
+    'fields': {entry.name: entry.value for entry in form.value}
+}, indent=True))

@@ -1,8 +1,33 @@
 version: "3"
 services:
 
-  server:
+  www.example.com:
     build: ./server
-    image: heartbleed:14.04
-    ports:
-      - 8080:80
+    image: heartbleed:server-20.04
+    networks:
+      - heartbleed
+    expose:
+      - 80
+      - 443
+
+  victim:
+    restart: always
+    build: ./client
+    image: heartbleed:victim-python3.8
+    networks:
+      - heartbleed
+    depends_on:
+      - www.example.com
+
+  attacker:
+    build: ./attacker
+    image: heartbleed:attacker-python2.7
+    volumes:
+      - ./attacker:/root/attacker
+    networks:
+      - heartbleed
+    depends_on:
+      - www.example.com
+
+networks:
+  heartbleed:
