@@ -8,17 +8,18 @@ RUN apt-get update \
         python3 \
         wget \
     && wget https://www.openssl.org/source/old/1.0.1/openssl-1.0.1f.tar.gz \
-    && wget https://archive.apache.org/dist/httpd/httpd-2.2.34.tar.gz \
+        https://archive.apache.org/dist/httpd/httpd-2.2.34.tar.gz \
     && tar xvf openssl-1.0.1f.tar.gz \
-    && cd openssl-1.0.1f \
+    && tar xvf httpd-2.2.34.tar.gz \
+    && cd /root/openssl-1.0.1f \
     && ./config shared \
     && make \
     && make install_sw \
-    && tar xvf httpd-2.2.34.tar.gz \
-    && cd httpd-2.2.34 \
+    && cd /root/httpd-2.2.34 \
     && ./configure --enable-ssl --with-ssl=/usr/local/ssl \
     && make \
     && make install \
+    && cd /root \
     && apt-get clean \
     && rm -rf *
 
